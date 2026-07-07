@@ -70,6 +70,34 @@ def test_cli_persists_created_package_across_runs(tmp_path, capsys):
     assert package["package"]["name"] == "Persistent Package"
 
 
+def test_cli_creates_package_from_content_file(tmp_path, capsys):
+    storage = str(tmp_path / "storage")
+    content_file = tmp_path / "content.json"
+    content_file.write_text('{"note":"synthetic file content"}')
+
+    create_exit = main(
+        [
+            "create-package",
+            "--storage-path",
+            storage,
+            "--json",
+            "--name",
+            "File Package",
+            "--domain",
+            "demo",
+            "--priority",
+            "medium",
+            "--content-file",
+            str(content_file),
+        ]
+    )
+    created = json.loads(capsys.readouterr().out)
+
+    assert create_exit == 0
+    assert created["package"]["name"] == "File Package"
+    assert created["total_packages"] == 1
+
+
 def test_cli_prunes_and_restores_persisted_package(tmp_path, capsys):
     storage = str(tmp_path / "storage")
 

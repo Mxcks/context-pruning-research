@@ -9,7 +9,7 @@ include FINAL_SUMMARY.md
 include simple_benchmark_results.json
 
 recursive-include docs *.md
-recursive-include examples *.md *.py *.sh
+recursive-include examples *.md *.py *.sh *.json
 recursive-include implementation *.py *.ps1
 recursive-include schemas *.md
 recursive-include spec *.md

@@ -80,6 +80,10 @@ def build_parser() -> argparse.ArgumentParser:
         default="{}",
         help="JSON object containing synthetic package content.",
     )
+    create_parser.add_argument(
+        "--content-file",
+        help="Path to a JSON file containing synthetic package content.",
+    )
     create_parser.add_argument("--tag", action="append", default=[])
     create_parser.add_argument("--reference", action="append", default=[])
 
@@ -134,9 +138,15 @@ def main(args: Optional[List[str]] = None) -> int:
 
     if parsed_args.command == "create-package":
         try:
-            content = json.loads(parsed_args.content)
+            content_source = parsed_args.content
+            if parsed_args.content_file:
+                content_source = Path(parsed_args.content_file).read_text()
+            content = json.loads(content_source)
         except json.JSONDecodeError as exc:
-            print(f"Invalid JSON for --content: {exc}", file=sys.stderr)
+            print(f"Invalid JSON for --content or --content-file: {exc}", file=sys.stderr)
+            return 2
+        except OSError as exc:
+            print(f"Unable to read --content-file: {exc}", file=sys.stderr)
             return 2
         if not isinstance(content, dict):
             print("--content must decode to a JSON object.", file=sys.stderr)

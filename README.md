@@ -26,7 +26,7 @@ cd context-pruning-research
 python -m pip install .
 context-pruning --version
 context-pruning init
-context-pruning create-package --name "Example Package" --domain demo --priority medium --content "{\"note\":\"synthetic example\"}"
+context-pruning create-package --name "Example Package" --domain demo --priority medium --content-file examples/package_content.json
 context-pruning status
 ```
 
