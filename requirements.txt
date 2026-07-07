@@ -1,0 +1,12 @@
+# Context Pruning Research Requirements
+
+# Core dependencies
+python>=3.8
+
+# Testing dependencies
+pytest>=6.0.0
+pytest-cov>=2.10.0
+
+# Development dependencies
+black>=21.0.0
+flake8>=3.8.0
