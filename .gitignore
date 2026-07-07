@@ -141,3 +141,4 @@ Thumbs.db
 
 # Scratchpad directory (context pruning temporary data)
 scratchpad/
+.context-pruning/
