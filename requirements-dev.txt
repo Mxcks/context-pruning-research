@@ -1,8 +1,5 @@
 # Development dependencies for Context Pruning Research
 
-# Core dependencies
-python>=3.8
-
 # Testing dependencies
 pytest>=6.0.0
 pytest-cov>=2.10.0
