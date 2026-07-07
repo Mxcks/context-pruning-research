@@ -70,22 +70,22 @@ This checklist turns the review findings into a staged path from promising resea
 
 ## Phase 8: Public Safety Gate
 
-- [ ] Confirm all example data is synthetic, generic, and safe to publish.
-- [ ] Remove real secrets, tokens, credentials, private URLs, and secret-shaped placeholder values.
-- [ ] Remove local absolute paths such as `E:\Research\...`, `E:\dev\...`, and `C:\Users\...`.
+- [x] Confirm all example data is synthetic, generic, and safe to publish.
+- [x] Remove real secrets, tokens, credentials, private URLs, and secret-shaped placeholder values.
+- [x] Remove local absolute paths such as `E:\Research\...`, `E:\dev\...`, and `C:\Users\...`.
 - [ ] Remove private Base41, client, project, calendar, finance, agent, or workspace details unless intentionally public.
-- [ ] Remove generated logs, scratchpads, caches, build folders, virtual environments, and temporary output files.
-- [ ] Ensure benchmark data is reproducible from checked-in code and safe synthetic inputs.
+- [x] Remove generated logs, scratchpads, caches, build folders, virtual environments, and temporary output files.
+- [x] Ensure benchmark data is reproducible from checked-in code and safe synthetic inputs.
 - [ ] Ensure claims do not reveal private operations, client outcomes, or unapproved business process details.
 - [x] Add or update `.gitignore` so private runtime files cannot be committed accidentally.
 - [x] Add or update `.gitattributes` so line endings and text normalization are predictable.
-- [ ] Run a final secret/path scan before release.
+- [x] Run a final secret/path scan before release.
 
 ## Phase 8A: Continuous Verification
 
 - [x] Add GitHub Actions CI for tests, package build, and benchmark invariants.
 - [x] Add a repository evidence standard for public claims.
-- [ ] Add CI badge after the workflow is visible on GitHub.
+- [x] Add CI badge after the workflow is visible on GitHub.
 - [ ] Add release artifact upload for benchmark output if release tags are created.
 
 Suggested scan patterns:
@@ -96,15 +96,15 @@ rg -n "C:\\\\Users|E:\\\\Research|E:\\\\dev|api[_-]?key|token|secret|password|cl
 
 ## Phase 9: Public Release Gate
 
-- [ ] Fresh clone succeeds.
-- [ ] `pip install -r requirements.txt` succeeds or README no longer recommends that path.
-- [ ] `pip install .` succeeds.
-- [ ] `python -m pytest` passes with meaningful package coverage.
-- [ ] `python examples/basic_pruning.py` succeeds.
-- [ ] `python implementation/benchmark.py` succeeds or is replaced by a supported benchmark command.
-- [ ] `context-pruning --version` succeeds after install.
-- [ ] README claims match the verified evidence.
-- [ ] No local-only paths, placeholder URLs, or secret-shaped example values remain.
+- [x] Fresh clone succeeds.
+- [x] `pip install -r requirements.txt` succeeds or README no longer recommends that path.
+- [x] `pip install .` succeeds.
+- [x] `python -m pytest` passes with meaningful package coverage.
+- [x] `python examples/basic_pruning.py` succeeds.
+- [x] `python implementation/benchmark.py` succeeds or is replaced by a supported benchmark command.
+- [x] `context-pruning --version` succeeds after install.
+- [x] README claims match the verified evidence.
+- [x] No local-only paths, placeholder URLs, or secret-shaped example values remain.
 
 ## Suggested First PR
 
