@@ -142,3 +142,4 @@ Thumbs.db
 # Scratchpad directory (context pruning temporary data)
 scratchpad/
 .context-pruning/
+benchmark_results.json

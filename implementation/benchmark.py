@@ -5,9 +5,13 @@ Benchmarking script for Context Pruning Implementation
 
 import time
 import json
-import os
 import sys
-from context_pruning import ContextPruningEngine, Priority, State
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from context_pruning import ContextPruningEngine, Priority
 
 def generate_test_content(size_kb: int) -> dict:
     """Generate test content of approximately the specified size in KB"""
@@ -42,7 +46,8 @@ def run_performance_test():
     print("=== Context Pruning Performance Benchmark ===\n")
     
     # Initialize engine
-    engine = ContextPruningEngine()
+    temp_dir = tempfile.TemporaryDirectory()
+    engine = ContextPruningEngine(storage_path=Path(temp_dir.name) / "performance")
     
     # Test 1: Package Creation Performance
     print("Test 1: Package Creation Performance")
@@ -87,21 +92,29 @@ def run_performance_test():
     
     # Test retrieval of active packages
     active_packages = list(engine.active_context.keys())[:10]  # Test first 10
-    start_time = time.time()
-    for pkg_id in active_packages:
-        engine.get_package(pkg_id)
-    active_retrieval_time = time.time() - start_time
-    print(f"  Retrieved {len(active_packages)} active packages in {active_retrieval_time:.4f} seconds")
-    print(f"  Average active retrieval: {active_retrieval_time/len(active_packages)*1000:.2f} ms per package")
+    if active_packages:  # Only run if we have active packages
+        start_time = time.time()
+        for pkg_id in active_packages:
+            engine.get_package(pkg_id)
+        active_retrieval_time = time.time() - start_time
+        print(f"  Retrieved {len(active_packages)} active packages in {active_retrieval_time:.4f} seconds")
+        print(f"  Average active retrieval: {active_retrieval_time/len(active_packages)*1000:.2f} ms per package")
+    else:
+        print("  No active packages to retrieve")
+        active_retrieval_time = 0
     
     # Test retrieval of compressed packages
     compressed_packages = list(engine.compressed_context.keys())[:10]  # Test first 10
-    start_time = time.time()
-    for pkg_id in compressed_packages:
-        engine.get_package(pkg_id)
-    compressed_retrieval_time = time.time() - start_time
-    print(f"  Retrieved {len(compressed_packages)} compressed packages in {compressed_retrieval_time:.4f} seconds")
-    print(f"  Average compressed retrieval: {compressed_retrieval_time/len(compressed_packages)*1000:.2f} ms per package")
+    if compressed_packages:  # Only run if we have compressed packages
+        start_time = time.time()
+        for pkg_id in compressed_packages:
+            engine.get_package(pkg_id)
+        compressed_retrieval_time = time.time() - start_time
+        print(f"  Retrieved {len(compressed_packages)} compressed packages in {compressed_retrieval_time:.4f} seconds")
+        print(f"  Average compressed retrieval: {compressed_retrieval_time/len(compressed_packages)*1000:.2f} ms per package")
+    else:
+        print("  No compressed packages to retrieve")
+        compressed_retrieval_time = 0
     
     # Test 5: Large Context Handling
     print("\nTest 5: Large Context Handling")
@@ -138,25 +151,38 @@ def run_performance_test():
     # Performance Summary
     print(f"\nPerformance Summary:")
     print(f"  Package creation: {creation_time/100*1000:.2f} ms avg")
-    print(f"  Context pruning: {prune_time:.4f} seconds")
-    print(f"  Active package retrieval: {active_retrieval_time/len(active_packages)*1000:.2f} ms avg")
-    print(f"  Compressed package retrieval: {compressed_retrieval_time/len(compressed_packages)*1000:.2f} ms avg")
     
-    return {
+    if active_packages:
+        active_avg = active_retrieval_time/len(active_packages)*1000
+        print(f"  Active package retrieval: {active_avg:.2f} ms avg")
+    else:
+        print("  Active package retrieval: N/A (no active packages)")
+
+    if compressed_packages:
+        compressed_avg = compressed_retrieval_time/len(compressed_packages)*1000
+        print(f"  Compressed package retrieval: {compressed_avg:.2f} ms avg")
+    else:
+        print("  Compressed package retrieval: N/A (no compressed packages)")
+
+    results = {
         "package_creation_avg_ms": creation_time/100*1000,
         "pruning_time_seconds": prune_time,
-        "active_retrieval_avg_ms": active_retrieval_time/len(active_packages)*1000,
-        "compressed_retrieval_avg_ms": compressed_retrieval_time/len(compressed_packages)*1000,
+        "active_retrieval_avg_ms": (active_retrieval_time/len(active_packages)*1000) if active_packages else 0,
+        "compressed_retrieval_avg_ms": (compressed_retrieval_time/len(compressed_packages)*1000) if compressed_packages else 0,
         "final_stats": final_stats
     }
+    temp_dir.cleanup()
+    return results
 
 def run_comparison_test():
     """Compare context pruning vs no pruning"""
     print("\n=== Context Pruning vs No Pruning Comparison ===\n")
     
+    temp_dir = tempfile.TemporaryDirectory()
+
     # Test without pruning (baseline)
     print("Baseline Test (No Pruning):")
-    engine_baseline = ContextPruningEngine()
+    engine_baseline = ContextPruningEngine(storage_path=Path(temp_dir.name) / "baseline")
     
     # Create many packages
     for i in range(200):
@@ -174,7 +200,7 @@ def run_comparison_test():
     
     # Test with pruning
     print("\nPruned Test (With Context Pruning):")
-    engine_pruned = ContextPruningEngine()
+    engine_pruned = ContextPruningEngine(storage_path=Path(temp_dir.name) / "pruned")
     
     # Create same packages
     for i in range(200):
@@ -197,20 +223,28 @@ def run_comparison_test():
     print(f"  Packages detached: {prune_stats['packages_detached']}")
     
     # Calculate savings
-    size_savings_kb = (baseline_stats['active_context_size'] - pruned_stats['active_context_size']) / 1024
-    size_savings_percent = (size_savings_kb / (baseline_stats['active_context_size'] / 1024)) * 100 if baseline_stats['active_context_size'] > 0 else 0
+    if baseline_stats['active_context_size'] > 0:
+        size_savings_kb = (baseline_stats['active_context_size'] - pruned_stats['active_context_size']) / 1024
+        size_savings_percent = (size_savings_kb / (baseline_stats['active_context_size'] / 1024)) * 100
+        memory_efficiency = (pruned_stats['active_context_size'] / baseline_stats['active_context_size'] * 100)
+    else:
+        size_savings_kb = 0
+        size_savings_percent = 0
+        memory_efficiency = 0
     
     print(f"\nSavings:")
     print(f"  Size reduction: {size_savings_kb:.2f} KB ({size_savings_percent:.1f}%)")
-    print(f"  Memory efficiency: {(pruned_stats['active_context_size'] / baseline_stats['active_context_size'] * 100):.1f}% of baseline")
+    print(f"  Memory efficiency: {memory_efficiency:.1f}% of baseline")
     
-    return {
-        "baseline_size_kb": baseline_stats['active_context_size'] / 1024,
-        "pruned_size_kb": pruned_stats['active_context_size'] / 1024,
+    results = {
+        "baseline_size_kb": baseline_stats['active_context_size'] / 1024 if baseline_stats['active_context_size'] > 0 else 0,
+        "pruned_size_kb": pruned_stats['active_context_size'] / 1024 if pruned_stats['active_context_size'] > 0 else 0,
         "size_savings_kb": size_savings_kb,
         "size_savings_percent": size_savings_percent,
-        "memory_efficiency_percent": (pruned_stats['active_context_size'] / baseline_stats['active_context_size'] * 100) if baseline_stats['active_context_size'] > 0 else 0
+        "memory_efficiency_percent": memory_efficiency
     }
+    temp_dir.cleanup()
+    return results
 
 if __name__ == "__main__":
     print("Starting Context Pruning Benchmark Suite...")
@@ -229,7 +263,7 @@ if __name__ == "__main__":
     }
     
     # Save to file
-    results_file = "E:/Research/Projects/base41/context-pruning-dev/benchmark_results.json"
+    results_file = "benchmark_results.json"
     with open(results_file, 'w') as f:
         json.dump(results, f, indent=2)
     

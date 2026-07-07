@@ -24,9 +24,9 @@ This checklist turns the review findings into a staged path from promising resea
 
 ## Phase 3: Benchmark Reproducibility
 
-- [ ] Fix divide-by-zero paths in `implementation/benchmark.py`.
+- [x] Fix divide-by-zero paths in `implementation/benchmark.py`.
 - [ ] Add benchmark assertions so failures are explicit instead of producing misleading reports.
-- [ ] Generate benchmark output from the current code during CI or a local verification script.
+- [x] Generate benchmark output from the current code during a local verification script.
 - [ ] Store raw benchmark input parameters alongside results.
 - [ ] Separate measured claims from projected or theoretical claims.
 - [ ] Re-run benchmark after packaging changes and update `simple_benchmark_results.json`.
@@ -43,7 +43,7 @@ This checklist turns the review findings into a staged path from promising resea
 ## Phase 5: Documentation Accuracy
 
 - [ ] Update README file tree to match the actual repository.
-- [ ] Either add missing `spec/01-*` files and `schemas/` files or remove those references.
+- [x] Either add missing `spec/01-*` files and `schemas/` files or remove those references.
 - [ ] Replace `<repository-url>` placeholders with the real clone URL.
 - [ ] Update setup instructions after the clean install path works.
 - [ ] Make the API reference match the implemented package and CLI.
