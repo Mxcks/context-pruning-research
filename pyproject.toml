@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "context-pruning-research"
+version = "0.1.0"
+description = "Research on context pruning for LLM context management"
+authors = [
+    {name = "Max Stern", email = "maxrstrn@gmail.com"},
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "fastapi>=0.68.0",
+    "uvicorn>=0.15.0",
+    "sqlalchemy>=2.0.0",
+    "jsonschema>=4.0.0",
+    "pyyaml>=6.0.0",
+    "pandas>=1.3.0",
+    "numpy>=1.21.0",
+    "psutil>=5.8.0",
+    "requests>=2.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.10.0",
+    "pytest-html>=3.1.1",
+    "black>=21.0.0",
+    "flake8>=3.8.0",
+    "isort>=5.8.0",
+    "mypy>=0.812",
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=0.5.0",
+    "pre-commit>=2.13.0",
+    "jupyter>=1.0.0",
+    "ipython>=7.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/context-pruning-research"
+Documentation = "https://github.com/your-username/context-pruning-research/blob/main/docs/README.md"
+Repository = "https://github.com/your-username/context-pruning-research"
+"Bug Tracker" = "https://github.com/your-username/context-pruning-research/issues"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+]
+addopts = [
+    "--verbose",
+    "--cov=context_pruning",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+]
