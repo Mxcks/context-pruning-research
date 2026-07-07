@@ -69,8 +69,8 @@ Our research demonstrates that Context Pruning can achieve:
 |--------|-------------------|-----------------|-------------|
 | Context Window Usage | 100% | 40-60% | 40-60% reduction |
 | Context Switching Time | 100% baseline | 33% | 3x faster |
-| Cross-Contamination | High | Zero | 100% elimination |
+| Cross-Contamination | High | Lower target | Needs measurement |
 | Context Reversibility | 0% | 100% | Complete solution |
-| Response Consistency | 60-70% | 95-100% | 50% improvement |
+| Response Consistency | Variable | Improvement target | Needs measurement |
 
 Continue to [Core Concepts](core-concepts.md) to understand the fundamental principles behind Context Pruning.

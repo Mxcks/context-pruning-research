@@ -1,111 +1,56 @@
-# Context Pruning Implementation and Benchmarking Report
+# Benchmark Report
 
-## Executive Summary
+This report describes the current local benchmark script for the importable `context_pruning` package.
 
-This report presents the implementation and benchmarking results of the Context Pruning system, demonstrating measurable improvements in context management for LLM applications.
+## Status
 
-## Implementation Overview
+The benchmark is a synthetic local benchmark, not a production LLM evaluation. It is useful for checking that package creation, pruning, retrieval, and persistence paths run without crashing and for comparing future code changes against the same workload.
 
-We implemented a complete Context Pruning system with the following core components:
+## Reproduce
 
-1. **Context Package Management**: Structured context information into named packages with metadata
-2. **Priority-Based Retention**: Implemented deterministic rules based on package priority levels
-3. **Multi-State Lifecycle**: Packages transition between Active, Compressed, and Detached states
-4. **Reference-Based Access**: Detached context remains addressable and retrievable
+```bash
+python implementation/benchmark.py
+```
 
-## Verified Benchmark Results
+The script writes `benchmark_results.json`. That file is ignored by git because it contains machine-specific timing and timestamp data.
 
-### Resource Efficiency Metrics
+## Current Benchmark Workload
 
-| Metric | Baseline (No Pruning) | With Context Pruning | Improvement |
-|--------|----------------------|---------------------|-------------|
-| Active Context Size | 24.83 KB | 19.86 KB | **20.0% reduction** |
-| Memory Efficiency | 100% | 80.0% | **20.0% savings** |
-| Packages Managed | 50 | 40 active + 10 detached | **Perfect isolation** |
+`implementation/benchmark.py` currently:
 
-### Performance Metrics
+- creates 100 medium-priority synthetic packages
+- measures package creation time
+- prunes to a 100 KB active-size limit
+- retrieves active packages
+- creates 5 larger low-priority synthetic packages
+- prunes again with a 50 KB active-size limit
+- compares a 200-package baseline against a pruned run
 
-| Operation | Time | Efficiency |
-|-----------|------|------------|
-| Package Creation | 0.57 ms avg | High throughput |
-| Context Pruning | 4.00 ms | Fast operation |
-| 100 Packages Test | 57.00 ms | Excellent scalability |
+The benchmark uses temporary storage so repeated runs are not contaminated by prior registry state.
 
-### Key Verified Improvements
+## Interpreting Results
 
-1. **✅ Size Reduction**: 20.0% reduction in active context footprint
-2. **✅ Memory Efficiency**: 80.0% memory efficiency compared to baseline
-3. **✅ Context Isolation**: Perfect separation with 10 packages properly detached
-4. **✅ Priority Retention**: Critical packages retained during pruning
-5. **✅ Performance**: Efficient creation (0.57ms) and pruning (4ms)
+The reported size reduction is a direct consequence of the configured active-size limits and synthetic package sizes. It should not be presented as a general LLM quality or productivity improvement.
 
-## Technical Implementation Details
+Safe claims:
 
-### Core Algorithm
+- The benchmark script runs against the current package API.
+- The engine can detach lower-priority packages to local storage.
+- Active context size can be reduced when a size limit is applied.
+- Detached packages remain registered and retrievable by ID.
 
-The pruning algorithm operates in three phases:
+Claims that still need separate evidence:
 
-1. **Assessment**: Calculate total active context size and identify packages exceeding limits
-2. **Selection**: Sort packages by priority and retention rules
-3. **Execution**: Move low-priority packages to detached storage while preserving critical context
+- response quality improvements
+- response consistency improvements
+- support, research, creative, or development productivity gains
+- production readiness
+- real-world cost savings
 
-### Priority System
+## Next Benchmark Improvements
 
-Packages are categorized by priority:
-- **Critical**: Always retained in active memory
-- **High**: Compressed but accessible
-- **Medium**: Detached when space needed
-- **Low**: First candidates for detachment
-
-### Storage Management
-
-The system implements a three-tier storage approach:
-- **Active**: In-memory for immediate access
-- **Compressed**: Reduced-size representations
-- **Detached**: Persistent storage with reference-based access
-
-## Real-World Impact
-
-Based on our verified benchmarks, Context Pruning delivers:
-
-### Immediate Benefits
-- **20% reduction** in context window usage
-- **Zero cross-contamination** between different domains
-- **100% reversibility** of pruned context
-- **Fast operations** (under 5ms for pruning)
-
-### Scalability
-- **Linear performance**: Handles 100+ packages efficiently
-- **Memory optimization**: Reduces active memory footprint
-- **Deterministic behavior**: Predictable pruning decisions
-
-## Verification Methodology
-
-All metrics were verified through controlled testing:
-
-1. **Baseline Measurement**: Created 50 context packages without pruning
-2. **Pruning Implementation**: Applied 20KB limit with priority-based rules
-3. **Performance Testing**: Measured creation and pruning times
-4. **Validation**: Confirmed context isolation and retention policies
-
-## Conclusion
-
-The Context Pruning implementation successfully demonstrates:
-
-- **Measurable resource efficiency improvements** (20% size reduction)
-- **Effective context isolation** (zero cross-contamination)
-- **High performance** (sub-5ms operations)
-- **Deterministic behavior** (priority-based decisions)
-- **Reversible operations** (detached context remains accessible)
-
-These verified results confirm the theoretical benefits outlined in our research and provide a solid foundation for real-world deployment.
-
-## Next Steps
-
-1. **Integration Testing**: Test with actual LLM implementations
-2. **Extended Benchmarking**: Run longer-term performance tests
-3. **Cross-Platform Validation**: Verify on different operating systems
-4. **Advanced Features**: Implement compression and advanced retention rules
-
----
-*Report generated from verified benchmark results on July 7, 2026*
+- Add fixed benchmark input parameters to the output file.
+- Add assertions for expected package counts and state transitions.
+- Add benchmark tests to CI.
+- Separate performance regression tests from research experiments.
+- Update or retire older static benchmark result files that no longer match current code.

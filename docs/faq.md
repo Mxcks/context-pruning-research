@@ -68,7 +68,7 @@ Minimum requirements:
 - 10GB free disk space
 - Modern web browser (for management interface)
 
-Recommended for production:
+For future production-style deployments:
 - Python 3.9+
 - 8GB+ RAM
 - 50GB+ free disk space
@@ -77,7 +77,7 @@ Recommended for production:
 
 ### How does Context Pruning handle security?
 Context Pruning includes several security features:
-- **Authentication**: API key or OAuth 2.0 support
+- **Authentication**: authorization-value or OAuth 2.0 support
 - **Authorization**: Role-based access control
 - **Encryption**: At-rest encryption for sensitive context
 - **Audit Logging**: Comprehensive operation logging
@@ -164,18 +164,18 @@ Context Pruning supports multiple storage backends:
 ## Performance Questions
 
 ### What performance improvements can I expect?
-Based on our research and case studies, Context Pruning typically delivers:
+Based on current hypotheses and illustrative scenarios, Context Pruning may help with:
 
 **Resource Efficiency:**
-- 40-60% reduction in context window usage
-- 55% reduction in memory footprint
-- 47% improvement in storage efficiency
+- lower active context usage under explicit size limits
+- lower active memory footprint when packages are detached
+- improved storage organization through package states
 
 **Quality Metrics:**
-- 42% improvement in accuracy
-- 46% improvement in consistency
-- 32% improvement in user satisfaction
-- 82% reduction in context-related errors
+- accuracy changes require separate model-quality evaluation
+- consistency changes require separate evaluation
+- user satisfaction requires separate study design
+- context-related error reduction requires reproducible test cases
 
 **Productivity Gains:**
 - 46% increase in output volume
@@ -344,10 +344,10 @@ OperationalError: could not connect to server
 sudo systemctl status postgresql
 
 # Verify connection string
-echo $DATABASE_URL
+echo $CONTEXT_PRUNING_DB_URL
 
 # Test connection manually
-psql $DATABASE_URL
+psql $CONTEXT_PRUNING_DB_URL
 ```
 
 ### Common Usage Issues
@@ -393,7 +393,7 @@ psql $DATABASE_URL
 
 **Problem: Authentication failures**
 **Solution:**
-1. Verify API key validity
+1. Verify authorization configuration
 2. Check authorization headers format
 3. Ensure proper permissions for operations
 4. Review security settings

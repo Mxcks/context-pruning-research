@@ -42,21 +42,21 @@ This checklist turns the review findings into a staged path from promising resea
 
 ## Phase 5: Documentation Accuracy
 
-- [ ] Update README file tree to match the actual repository.
+- [x] Update README file tree to match the actual repository.
 - [x] Either add missing `spec/01-*` files and `schemas/` files or remove those references.
-- [ ] Replace `<repository-url>` placeholders with the real clone URL.
-- [ ] Update setup instructions after the clean install path works.
-- [ ] Make the API reference match the implemented package and CLI.
-- [ ] Mark any future API server examples as proposed, not currently available.
-- [ ] Add a short "What is verified today" section and a separate "Research hypotheses" section.
+- [x] Replace `<repository-url>` placeholders with the real clone URL.
+- [x] Update setup instructions after the clean install path works.
+- [x] Make the API reference identify proposed API/server behavior instead of current package behavior.
+- [x] Mark any future API server examples as proposed, not currently available.
+- [x] Add a short "What is verified today" section and a separate "Research hypotheses" section.
 
 ## Phase 6: Claims and Research Integrity
 
-- [ ] Downgrade unsupported claims such as response consistency, case-study gains, and 100% elimination until source data exists.
+- [x] Downgrade unsupported claims such as response consistency, case-study gains, and 100% elimination until source data exists.
 - [ ] Add methodology for every retained quantitative claim.
 - [ ] Add raw data or reproducible scripts for every benchmark table.
-- [ ] Label illustrative examples clearly.
-- [ ] Add limitations and failure modes.
+- [x] Label illustrative examples clearly.
+- [x] Add limitations and failure modes.
 - [ ] Add a reproducibility note explaining machine, Python version, command sequence, and expected output.
 
 ## Phase 7: Cross-Platform Hygiene

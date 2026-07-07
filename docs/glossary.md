@@ -27,7 +27,7 @@ The process of measuring system performance against standardized tests or metric
 A hardware or software component that stores data temporarily to reduce access time. Context Pruning uses caching to improve performance for frequently accessed context packages.
 
 ### Case Study
-A detailed examination of a specific implementation or use case of Context Pruning in a real-world scenario. Case studies provide practical insights and measurable results.
+A detailed examination of a specific implementation or use case of Context Pruning. In this repository, case-study material is illustrative until backed by reproducible measurements.
 
 ### Chunking
 The process of breaking large amounts of information into smaller, manageable pieces. In Context Pruning, chunking is used to organize context into appropriately sized packages.

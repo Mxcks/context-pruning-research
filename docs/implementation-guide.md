@@ -33,7 +33,7 @@ pytest-cov>=2.10.0
 
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/your-username/context-pruning-research.git
+git clone https://github.com/Mxcks/context-pruning-research.git
 cd context-pruning-research
 ```
 
@@ -62,9 +62,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./context_pruning.db")
+CONTEXT_PRUNING_DB_URL = os.getenv("CONTEXT_PRUNING_DB_URL", "sqlite:///./context_pruning.db")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(CONTEXT_PRUNING_DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -638,7 +638,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/context_pruning
+      - CONTEXT_PRUNING_DB_URL=postgresql://example-user:example-credential@db:5432/context_pruning
     depends_on:
       - db
     volumes:
@@ -649,7 +649,7 @@ services:
     environment:
       - POSTGRES_DB=context_pruning
       - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=example-credential
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -707,7 +707,7 @@ from typing import Optional
 
 class Settings:
     # Database settings
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./context_pruning.db")
+    CONTEXT_PRUNING_DB_URL: str = os.getenv("CONTEXT_PRUNING_DB_URL", "sqlite:///./context_pruning.db")
     
     # Storage settings
     STORAGE_PATH: str = os.getenv("STORAGE_PATH", "./data")

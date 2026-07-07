@@ -65,7 +65,7 @@ There are many ways to contribute to Context Pruning Research:
 ### Setting Up Development Environment
 
 1. **Fork the Repository**
-   Visit [https://github.com/your-username/context-pruning-research](https://github.com/your-username/context-pruning-research) and click the "Fork" button.
+   Visit [https://github.com/Mxcks/context-pruning-research](https://github.com/Mxcks/context-pruning-research) and click the "Fork" button.
 
 2. **Clone Your Fork**
    ```bash

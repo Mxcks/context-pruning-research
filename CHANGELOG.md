@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Comprehensive documentation suite
 - Performance metrics and benchmarks
-- Case studies with real-world examples
+- Draft case-study scenarios for future evidence-backed work
 - Best practices guidelines
 - API reference documentation
 - Contributing guidelines
@@ -36,5 +36,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Schema definitions
 - Initial README documentation
 
-[Unreleased]: https://github.com/your-username/context-pruning-research/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/your-username/context-pruning-research/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Mxcks/context-pruning-research/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Mxcks/context-pruning-research/releases/tag/v0.1.0

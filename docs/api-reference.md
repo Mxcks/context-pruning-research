@@ -1,6 +1,6 @@
 # API Reference
 
-This document provides comprehensive documentation for the Context Pruning API, including all endpoints, parameters, responses, and error codes.
+This document is a proposed API reference. The current repository ships a Python package and CLI, not a production API server.
 
 ## Base URL
 
@@ -15,17 +15,17 @@ http://localhost:8000/v1
 
 ## Authentication
 
-Most API endpoints require authentication using an API key.
+Most proposed API endpoints would require authentication.
 
 ### Headers
 ```
-Authorization: Bearer YOUR_API_KEY
+Authorization: Bearer EXAMPLE_AUTH_VALUE
 Content-Type: application/json
 ```
 
-### API Key Management
+### Auth Value Management
 ```bash
-# Generate a new API key
+# Generate a new auth value
 POST /api-keys/
 {
   "name": "Development Key",
@@ -71,7 +71,7 @@ All API errors follow this format:
 | Code | HTTP Status | Description |
 |------|-------------|-------------|
 | `invalid_request` | 400 | Invalid request parameters |
-| `unauthorized` | 401 | Missing or invalid API key |
+| `unauthorized` | 401 | Missing or invalid authorization value |
 | `forbidden` | 403 | Insufficient permissions |
 | `not_found` | 404 | Resource not found |
 | `conflict` | 409 | Resource conflict |
@@ -112,7 +112,7 @@ POST /packages/
 #### Example
 ```bash
 curl -X POST https://api.contextpruning.example.com/v1/packages/ \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer EXAMPLE_AUTH_VALUE" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "CLI Tools Development",
@@ -159,7 +159,7 @@ GET /packages/{package_id}
 #### Example
 ```bash
 curl -X GET https://api.contextpruning.example.com/v1/packages/a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8 \
-  -H "Authorization: Bearer YOUR_API_KEY"
+  -H "Authorization: Bearer EXAMPLE_AUTH_VALUE"
 ```
 
 ### Update Package
@@ -834,7 +834,7 @@ POST /webhooks/
 ```python
 from context_pruning import Client
 
-client = Client(api_key="YOUR_API_KEY")
+client = Client(auth_value="EXAMPLE_AUTH_VALUE")
 
 # Create a package
 package = client.packages.create(
