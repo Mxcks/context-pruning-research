@@ -108,6 +108,13 @@ See [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md) for complete results:
 | **Package Creation** | **0.57 ms avg** |
 | **Pruning Time** | **4.00 ms** |
 
+### Detailed Verification Results
+For a comprehensive breakdown of all verified components, see [VERIFIED_RESULTS.md](VERIFIED_RESULTS.md) which includes:
+- Specific test results for each component
+- Performance metrics with confidence intervals
+- Isolation effectiveness measurements
+- Scalability verification data
+
 ## Examples
 
 - `examples/basic_pruning.py` - Demonstrates basic node-based context isolation
