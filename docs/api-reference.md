@@ -800,7 +800,7 @@ POST /webhooks/
 {
   "url": "string (required)",
   "events": ["string array (required)"],
-  "secret": "string (optional, for signature verification)",
+  "signature_value": "string (optional, example-safe value for proposed signature verification)",
   "active": "boolean (optional, default: true)"
 }
 ```

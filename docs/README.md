@@ -9,6 +9,7 @@ This directory contains a mix of current package documentation and draft researc
 - [Implementation Guide](implementation-guide.md)
 - [Performance Metrics](performance-metrics.md)
 - [Case Studies](case-studies.md)
+- [Evidence Standard](evidence-standard.md)
 
 ## Quick Start
 
@@ -30,4 +31,4 @@ Docs should clearly separate:
 - illustrative scenarios
 - future research hypotheses
 
-When in doubt, describe the feature as proposed until code and tests exist.
+When in doubt, describe the feature as proposed until code and tests exist. Use [Evidence Standard](evidence-standard.md) before adding measurable public claims.

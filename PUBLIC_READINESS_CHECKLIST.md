@@ -25,10 +25,10 @@ This checklist turns the review findings into a staged path from promising resea
 ## Phase 3: Benchmark Reproducibility
 
 - [x] Fix divide-by-zero paths in `implementation/benchmark.py`.
-- [ ] Add benchmark assertions so failures are explicit instead of producing misleading reports.
+- [x] Add benchmark assertions so failures are explicit instead of producing misleading reports.
 - [x] Generate benchmark output from the current code during a local verification script.
-- [ ] Store raw benchmark input parameters alongside results.
-- [ ] Separate measured claims from projected or theoretical claims.
+- [x] Store raw benchmark input parameters alongside results.
+- [x] Separate measured claims from projected or theoretical claims.
 - [ ] Re-run benchmark after packaging changes and update `simple_benchmark_results.json`.
 
 ## Phase 4: Test Quality
@@ -53,11 +53,11 @@ This checklist turns the review findings into a staged path from promising resea
 ## Phase 6: Claims and Research Integrity
 
 - [x] Downgrade unsupported claims such as response consistency, case-study gains, and 100% elimination until source data exists.
-- [ ] Add methodology for every retained quantitative claim.
+- [x] Add methodology for every retained quantitative claim.
 - [ ] Add raw data or reproducible scripts for every benchmark table.
 - [x] Label illustrative examples clearly.
 - [x] Add limitations and failure modes.
-- [ ] Add a reproducibility note explaining machine, Python version, command sequence, and expected output.
+- [x] Add a reproducibility note explaining machine, Python version, command sequence, and expected output.
 
 ## Phase 7: Cross-Platform Hygiene
 
@@ -80,6 +80,13 @@ This checklist turns the review findings into a staged path from promising resea
 - [x] Add or update `.gitignore` so private runtime files cannot be committed accidentally.
 - [x] Add or update `.gitattributes` so line endings and text normalization are predictable.
 - [ ] Run a final secret/path scan before release.
+
+## Phase 8A: Continuous Verification
+
+- [x] Add GitHub Actions CI for tests, package build, and benchmark invariants.
+- [x] Add a repository evidence standard for public claims.
+- [ ] Add CI badge after the workflow is visible on GitHub.
+- [ ] Add release artifact upload for benchmark output if release tags are created.
 
 Suggested scan patterns:
 

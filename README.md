@@ -42,6 +42,8 @@ python implementation/benchmark.py
 
 Benchmark output is generated as `benchmark_results.json` and is intentionally ignored by git because timings and timestamps vary by machine.
 
+The benchmark also asserts portable invariants for package counts, detachment behavior, active-size limits, and positive size reduction. Timing values remain observational.
+
 ## Repository Structure
 
 ```text
@@ -55,6 +57,7 @@ spec/                         Draft design specifications
 schemas/                      Draft schema and tag examples
 tests/                        Pytest coverage for package and CLI behavior
 docs/                         Broader research documentation
+docs/evidence-standard.md     Evidence rules for public claims
 BENCHMARK_REPORT.md           Current benchmark summary
 PUBLIC_READINESS_CHECKLIST.md Public-release cleanup checklist
 ```
@@ -71,7 +74,7 @@ python -m build --sdist --wheel
 python implementation/benchmark.py
 ```
 
-Current test coverage is focused on the importable package and CLI. The broader research claims in `docs/` are being reviewed and should be treated as draft research material unless they reference reproducible code and data.
+Current test coverage is focused on the importable package and CLI. The broader research claims in `docs/` are being reviewed and should be treated as draft research material unless they meet the [evidence standard](docs/evidence-standard.md).
 
 ## Benchmark Scope
 
@@ -95,7 +98,7 @@ Planned research and implementation areas:
 
 Public examples should use synthetic data only. Do not commit real secrets, private project details, local machine paths, generated benchmark output, caches, or runtime storage.
 
-See [PUBLIC_READINESS_CHECKLIST.md](PUBLIC_READINESS_CHECKLIST.md) for the release gate.
+See [PUBLIC_READINESS_CHECKLIST.md](PUBLIC_READINESS_CHECKLIST.md) and [docs/evidence-standard.md](docs/evidence-standard.md) for the release gate.
 
 ## License
 

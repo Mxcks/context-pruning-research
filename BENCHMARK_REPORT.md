@@ -14,6 +14,8 @@ python implementation/benchmark.py
 
 The script writes `benchmark_results.json`. That file is ignored by git because it contains machine-specific timing and timestamp data.
 
+The script also raises an assertion failure if core benchmark invariants stop holding. Those invariants cover expected package counts, detachment after pruning, active-size limits, and positive size reduction.
+
 ## Current Benchmark Workload
 
 `implementation/benchmark.py` currently:
@@ -25,6 +27,7 @@ The script writes `benchmark_results.json`. That file is ignored by git because 
 - creates 5 larger low-priority synthetic packages
 - prunes again with a 50 KB active-size limit
 - compares a 200-package baseline against a pruned run
+- validates portable benchmark invariants before exiting successfully
 
 The benchmark uses temporary storage so repeated runs are not contaminated by prior registry state.
 
@@ -49,8 +52,6 @@ Claims that still need separate evidence:
 
 ## Next Benchmark Improvements
 
-- Add fixed benchmark input parameters to the output file.
-- Add assertions for expected package counts and state transitions.
-- Add benchmark tests to CI.
+- Add raw benchmark output snapshots for release tags.
 - Separate performance regression tests from research experiments.
 - Update or retire older static benchmark result files that no longer match current code.

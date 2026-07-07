@@ -13,6 +13,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from context_pruning import ContextPruningEngine, Priority
 
+
+BENCHMARK_EXPECTATIONS = {
+    "performance_created_packages": 100,
+    "performance_large_packages": 5,
+    "comparison_created_packages": 200,
+    "performance_prune_limit_bytes": 100000,
+    "large_prune_limit_bytes": 50000,
+    "comparison_prune_limit_bytes": 50000,
+}
+
+
 def generate_test_content(size_kb: int) -> dict:
     """Generate test content of approximately the specified size in KB"""
     size_bytes = size_kb * 1024
@@ -79,12 +90,12 @@ def run_performance_test():
     # Test 3: Pruning Performance
     print("\nTest 3: Pruning Performance")
     start_time = time.time()
-    prune_stats = engine.prune_context(max_active_size=100000)  # 100KB limit
+    first_prune_stats = engine.prune_context(max_active_size=100000)  # 100KB limit
     prune_time = time.time() - start_time
     print(f"  Pruning completed in {prune_time:.4f} seconds")
-    print(f"  Packages retained: {prune_stats['packages_retained']}")
-    print(f"  Packages compressed: {prune_stats['packages_compressed']}")
-    print(f"  Packages detached: {prune_stats['packages_detached']}")
+    print(f"  Packages retained: {first_prune_stats['packages_retained']}")
+    print(f"  Packages compressed: {first_prune_stats['packages_compressed']}")
+    print(f"  Packages detached: {first_prune_stats['packages_detached']}")
     
     # Test 4: Package Retrieval Performance
     print("\nTest 4: Package Retrieval Performance")
@@ -136,10 +147,10 @@ def run_performance_test():
     
     # Prune with very small limit to force detachment
     start_time = time.time()
-    prune_stats = engine.prune_context(max_active_size=50000)  # 50KB limit
+    large_prune_stats = engine.prune_context(max_active_size=50000)  # 50KB limit
     large_prune_time = time.time() - start_time
     print(f"  Pruned large context in {large_prune_time:.4f} seconds")
-    print(f"  Packages detached due to size: {prune_stats['packages_detached']}")
+    print(f"  Packages detached due to size: {large_prune_stats['packages_detached']}")
     
     # Final statistics
     print("\n=== Final Benchmark Results ===")
@@ -169,7 +180,11 @@ def run_performance_test():
         "pruning_time_seconds": prune_time,
         "active_retrieval_avg_ms": (active_retrieval_time/len(active_packages)*1000) if active_packages else 0,
         "compressed_retrieval_avg_ms": (compressed_retrieval_time/len(compressed_packages)*1000) if compressed_packages else 0,
-        "final_stats": final_stats
+        "initial_stats": stats,
+        "first_prune_stats": first_prune_stats,
+        "large_prune_stats": large_prune_stats,
+        "final_stats": final_stats,
+        "expectations": BENCHMARK_EXPECTATIONS,
     }
     temp_dir.cleanup()
     return results
@@ -241,10 +256,47 @@ def run_comparison_test():
         "pruned_size_kb": pruned_stats['active_context_size'] / 1024 if pruned_stats['active_context_size'] > 0 else 0,
         "size_savings_kb": size_savings_kb,
         "size_savings_percent": size_savings_percent,
-        "memory_efficiency_percent": memory_efficiency
+        "memory_efficiency_percent": memory_efficiency,
+        "baseline_stats": baseline_stats,
+        "pruned_stats": pruned_stats,
+        "prune_stats": prune_stats,
+        "expectations": BENCHMARK_EXPECTATIONS,
     }
     temp_dir.cleanup()
     return results
+
+
+def validate_results(results: dict) -> None:
+    """Assert benchmark invariants that should hold on any reasonable machine."""
+    performance = results["performance"]
+    comparison = results["comparison"]
+
+    initial_stats = performance["initial_stats"]
+    final_stats = performance["final_stats"]
+    first_prune = performance["first_prune_stats"]
+    large_prune = performance["large_prune_stats"]
+
+    assert initial_stats["active_packages"] == BENCHMARK_EXPECTATIONS["performance_created_packages"]
+    assert initial_stats["active_context_size"] > BENCHMARK_EXPECTATIONS["performance_prune_limit_bytes"]
+    assert first_prune["packages_detached"] > 0
+    assert large_prune["packages_detached"] > 0
+    assert final_stats["active_context_size"] <= BENCHMARK_EXPECTATIONS["large_prune_limit_bytes"]
+    assert final_stats["detached_packages"] > 0
+    assert final_stats["total_packages"] == (
+        BENCHMARK_EXPECTATIONS["performance_created_packages"]
+        + BENCHMARK_EXPECTATIONS["performance_large_packages"]
+    )
+
+    baseline_stats = comparison["baseline_stats"]
+    pruned_stats = comparison["pruned_stats"]
+    comparison_prune = comparison["prune_stats"]
+
+    assert baseline_stats["active_packages"] == BENCHMARK_EXPECTATIONS["comparison_created_packages"]
+    assert pruned_stats["active_context_size"] <= BENCHMARK_EXPECTATIONS["comparison_prune_limit_bytes"]
+    assert comparison_prune["packages_detached"] > 0
+    assert comparison["size_savings_kb"] > 0
+    assert comparison["size_savings_percent"] > 0
+
 
 if __name__ == "__main__":
     print("Starting Context Pruning Benchmark Suite...")
@@ -261,6 +313,8 @@ if __name__ == "__main__":
         "comparison": comparison_results,
         "timestamp": time.time()
     }
+
+    validate_results(results)
     
     # Save to file
     results_file = "benchmark_results.json"
