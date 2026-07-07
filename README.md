@@ -1,5 +1,7 @@
 # Context Pruning Research
 
+[![CI](https://github.com/Mxcks/context-pruning-research/actions/workflows/ci.yml/badge.svg)](https://github.com/Mxcks/context-pruning-research/actions/workflows/ci.yml)
+
 Context pruning is a research and prototype implementation for managing long-running LLM context with explicit packages, priorities, lifecycle states, and auditable retention rules.
 
 The core idea is simple: instead of asking only "how relevant is this text?", organize context into named packages and decide what remains active, compressed, detached, or archived by rule.
