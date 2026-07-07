@@ -15,12 +15,12 @@ This checklist turns the review findings into a staged path from promising resea
 
 ## Phase 2: CLI and User-Facing Workflow
 
-- [ ] Replace stub CLI commands with real engine-backed behavior.
-- [ ] Define the first supported CLI surface clearly: `init`, `create-package`, `prune`, `status`, and `restore`.
-- [ ] Make CLI output ASCII-safe or explicitly force UTF-8 output.
-- [ ] Add `--storage-path` so the engine does not default to a machine-specific Base41 path.
-- [ ] Add `--json` output for automation-friendly command results.
-- [ ] Add CLI tests that verify every documented command works.
+- [x] Replace stub CLI commands with real engine-backed behavior.
+- [x] Define the first supported CLI surface clearly: `init`, `create-package`, `prune`, `status`, and `restore`.
+- [x] Keep new CLI output ASCII-safe.
+- [x] Add `--storage-path` so the engine does not default to a machine-specific Base41 path.
+- [x] Add `--json` output for automation-friendly command results.
+- [x] Add CLI tests that verify every documented command works.
 
 ## Phase 3: Benchmark Reproducibility
 

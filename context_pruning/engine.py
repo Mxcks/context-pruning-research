@@ -13,7 +13,7 @@ import time
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 class Priority(Enum):
@@ -71,18 +71,25 @@ class ContextPackage:
 class ContextPruningEngine:
     """Manage active, compressed, and detached context packages."""
 
-    def __init__(self, storage_path: str | Path = ".context-pruning/storage"):
+    def __init__(
+        self,
+        storage_path: Union[str, Path] = ".context-pruning/storage",
+        auto_save: bool = True,
+    ):
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
+        self.registry_path = self.storage_path / "registry.json"
+        self.auto_save = auto_save
         self.active_context: Dict[str, ContextPackage] = {}
         self.compressed_context: Dict[str, ContextPackage] = {}
         self.detached_context: Dict[str, str] = {}
+        self.load()
 
     def create_package(
         self,
         name: str,
         domain: str,
-        priority: Priority | str,
+        priority: Union[Priority, str],
         content: Dict[str, Any],
         tags: Optional[List[str]] = None,
         references: Optional[List[str]] = None,
@@ -104,6 +111,7 @@ class ContextPruningEngine:
             last_accessed=time.time(),
         )
         self.active_context[package_id] = package
+        self.save()
         return package_id
 
     def get_package(self, package_id: str) -> Optional[ContextPackage]:
@@ -112,11 +120,13 @@ class ContextPruningEngine:
         if package_id in self.active_context:
             package = self.active_context[package_id]
             package.last_accessed = time.time()
+            self.save()
             return package
 
         if package_id in self.compressed_context:
             package = self.compressed_context[package_id]
             package.last_accessed = time.time()
+            self.save()
             return package
 
         storage_file = self.detached_context.get(package_id)
@@ -128,6 +138,40 @@ class ContextPruningEngine:
                 return package
 
         return None
+
+    def list_packages(self) -> List[ContextPackage]:
+        """Return all known packages sorted by priority and recency."""
+
+        packages = list(self.active_context.values()) + list(
+            self.compressed_context.values()
+        )
+        for package_id in self.detached_context:
+            package = self.get_package(package_id)
+            if package is not None:
+                packages.append(package)
+        return sorted(
+            packages,
+            key=lambda package: (
+                self._priority_value(package.priority),
+                package.last_accessed,
+            ),
+            reverse=True,
+        )
+
+    def restore_package(self, package_id: str) -> Optional[ContextPackage]:
+        """Move a compressed or detached package back into active context."""
+
+        package = self.get_package(package_id)
+        if package is None:
+            return None
+
+        self.compressed_context.pop(package_id, None)
+        self.detached_context.pop(package_id, None)
+        package.state = State.ACTIVE
+        package.last_accessed = time.time()
+        self.active_context[package_id] = package
+        self.save()
+        return package
 
     def prune_context(self, max_active_size: int = 1_000_000) -> Dict[str, int]:
         """Prune active context based on size limits and priority."""
@@ -142,6 +186,7 @@ class ContextPruningEngine:
         current_size = sum(pkg.size for pkg in self.active_context.values())
         if current_size <= max_active_size:
             stats["packages_retained"] = len(self.active_context)
+            self.save()
             return stats
 
         sorted_packages = sorted(
@@ -170,6 +215,7 @@ class ContextPruningEngine:
                 stats["packages_detached"] += 1
 
         self.active_context = new_active_context
+        self.save()
         return stats
 
     def get_stats(self) -> Dict[str, Any]:
@@ -212,3 +258,43 @@ class ContextPruningEngine:
         timestamp = str(time.time_ns())
         unique_string = f"{name}-{domain}-{timestamp}"
         return hashlib.sha256(unique_string.encode()).hexdigest()[:32]
+
+    def save(self) -> None:
+        """Persist the registry to disk when automatic saving is enabled."""
+
+        if not self.auto_save:
+            return
+
+        registry = {
+            "version": 1,
+            "active": {
+                package_id: package.to_dict()
+                for package_id, package in self.active_context.items()
+            },
+            "compressed": {
+                package_id: package.to_dict()
+                for package_id, package in self.compressed_context.items()
+            },
+            "detached": self.detached_context,
+        }
+        self.registry_path.write_text(json.dumps(registry, indent=2, sort_keys=True))
+
+    def load(self) -> None:
+        """Load registry state from disk if it exists."""
+
+        if not self.registry_path.exists():
+            return
+
+        registry = json.loads(self.registry_path.read_text())
+        self.active_context = {
+            package_id: ContextPackage.from_dict(package)
+            for package_id, package in registry.get("active", {}).items()
+        }
+        self.compressed_context = {
+            package_id: ContextPackage.from_dict(package)
+            for package_id, package in registry.get("compressed", {}).items()
+        }
+        self.detached_context = {
+            package_id: str(path)
+            for package_id, path in registry.get("detached", {}).items()
+        }

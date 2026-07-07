@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from . import __version__
-from .engine import ContextPruningEngine, Priority
+from .engine import ContextPackage, ContextPruningEngine, Priority
 
 
 def _add_common_options(parser: argparse.ArgumentParser) -> None:
@@ -34,6 +34,19 @@ def _print_result(data: dict, as_json: bool) -> None:
         print(f"{key}: {value}")
 
 
+def _package_summary(package: ContextPackage) -> dict:
+    return {
+        "id": package.id,
+        "name": package.name,
+        "domain": package.domain,
+        "priority": package.priority.value,
+        "state": package.state.value,
+        "size": package.size,
+        "tags": package.tags,
+        "references": package.references,
+    }
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Context Pruning Research CLI")
     parser.add_argument(
@@ -52,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     create_parser = subparsers.add_parser(
         "create-package",
-        help="Create a package in a temporary engine session.",
+        help="Create and persist a context package.",
     )
     _add_common_options(create_parser)
     create_parser.add_argument("--name", required=True)
@@ -69,6 +82,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     create_parser.add_argument("--tag", action="append", default=[])
     create_parser.add_argument("--reference", action="append", default=[])
+
+    list_parser = subparsers.add_parser("list-packages", help="List known packages.")
+    _add_common_options(list_parser)
+
+    get_parser = subparsers.add_parser("get-package", help="Show one package.")
+    _add_common_options(get_parser)
+    get_parser.add_argument("package_id")
+
+    prune_parser = subparsers.add_parser("prune", help="Prune persisted packages.")
+    _add_common_options(prune_parser)
+    prune_parser.add_argument("--max-active-size", type=int, required=True)
+
+    restore_parser = subparsers.add_parser(
+        "restore",
+        help="Restore a compressed or detached package to active state.",
+    )
+    _add_common_options(restore_parser)
+    restore_parser.add_argument("package_id")
 
     prune_parser = subparsers.add_parser(
         "prune-demo",
@@ -93,6 +124,7 @@ def main(args: Optional[List[str]] = None) -> int:
     if parsed_args.command == "init":
         storage_path = Path(parsed_args.storage_path)
         (storage_path / "detached").mkdir(parents=True, exist_ok=True)
+        engine.save()
         _print_result({"storage_path": str(storage_path), "initialized": True}, parsed_args.json)
         return 0
 
@@ -117,7 +149,45 @@ def main(args: Optional[List[str]] = None) -> int:
             tags=parsed_args.tag,
             references=parsed_args.reference,
         )
-        _print_result({"package_id": package_id, **engine.get_stats()}, parsed_args.json)
+        package = engine.get_package(package_id)
+        result = {"package": _package_summary(package), **engine.get_stats()}
+        _print_result(result, parsed_args.json)
+        return 0
+
+    if parsed_args.command == "list-packages":
+        packages = [_package_summary(package) for package in engine.list_packages()]
+        if parsed_args.json:
+            _print_result({"packages": packages, **engine.get_stats()}, parsed_args.json)
+        else:
+            if not packages:
+                print("No packages found.")
+            for package in packages:
+                print(
+                    f"{package['id']} {package['state']} "
+                    f"{package['priority']} {package['domain']} {package['name']}"
+                )
+        return 0
+
+    if parsed_args.command == "get-package":
+        package = engine.get_package(parsed_args.package_id)
+        if package is None:
+            print(f"Package not found: {parsed_args.package_id}", file=sys.stderr)
+            return 1
+        result = {"package": {**_package_summary(package), "content": package.content}}
+        _print_result(result, parsed_args.json)
+        return 0
+
+    if parsed_args.command == "prune":
+        prune_stats = engine.prune_context(max_active_size=parsed_args.max_active_size)
+        _print_result({**prune_stats, **engine.get_stats()}, parsed_args.json)
+        return 0
+
+    if parsed_args.command == "restore":
+        package = engine.restore_package(parsed_args.package_id)
+        if package is None:
+            print(f"Package not found: {parsed_args.package_id}", file=sys.stderr)
+            return 1
+        _print_result({"package": _package_summary(package), **engine.get_stats()}, parsed_args.json)
         return 0
 
     if parsed_args.command == "prune-demo":
