@@ -5,6 +5,7 @@ Benchmarking script for Context Pruning Implementation
 
 import time
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -14,10 +15,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from context_pruning import ContextPruningEngine, Priority
 
 
+def _env_int(name: str, default: int) -> int:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    parsed = int(value)
+    if parsed <= 0:
+        raise ValueError(f"{name} must be a positive integer")
+    return parsed
+
+
 BENCHMARK_EXPECTATIONS = {
-    "performance_created_packages": 100,
-    "performance_large_packages": 5,
-    "comparison_created_packages": 200,
+    "performance_created_packages": _env_int("CONTEXT_BENCHMARK_PERFORMANCE_PACKAGES", 100),
+    "performance_large_packages": _env_int("CONTEXT_BENCHMARK_LARGE_PACKAGES", 5),
+    "comparison_created_packages": _env_int("CONTEXT_BENCHMARK_COMPARISON_PACKAGES", 200),
     "performance_prune_limit_bytes": 100000,
     "large_prune_limit_bytes": 50000,
     "comparison_prune_limit_bytes": 50000,
@@ -65,7 +76,8 @@ def run_performance_test():
     start_time = time.time()
     
     package_ids = []
-    for i in range(100):
+    performance_packages = BENCHMARK_EXPECTATIONS["performance_created_packages"]
+    for i in range(performance_packages):
         pkg_id = engine.create_package(
             name=f"Test Package {i}",
             domain="benchmark",
@@ -76,8 +88,8 @@ def run_performance_test():
         package_ids.append(pkg_id)
     
     creation_time = time.time() - start_time
-    print(f"  Created 100 packages in {creation_time:.4f} seconds")
-    print(f"  Average creation time: {creation_time/100*1000:.2f} ms per package")
+    print(f"  Created {performance_packages} packages in {creation_time:.4f} seconds")
+    print(f"  Average creation time: {creation_time/performance_packages*1000:.2f} ms per package")
     
     # Test 2: Context Size Measurement
     print("\nTest 2: Context Size and Memory Usage")
@@ -131,7 +143,8 @@ def run_performance_test():
     print("\nTest 5: Large Context Handling")
     # Create a few very large packages
     large_package_ids = []
-    for i in range(5):
+    large_packages = BENCHMARK_EXPECTATIONS["performance_large_packages"]
+    for i in range(large_packages):
         pkg_id = engine.create_package(
             name=f"Large Package {i}",
             domain="large-data",
@@ -141,7 +154,7 @@ def run_performance_test():
         )
         large_package_ids.append(pkg_id)
     
-    print(f"  Created 5 large packages (50KB each)")
+    print(f"  Created {large_packages} large packages (50KB each)")
     large_stats = engine.get_stats()
     print(f"  Total context size: {large_stats['active_context_size']/1024:.2f} KB")
     
@@ -161,7 +174,7 @@ def run_performance_test():
     
     # Performance Summary
     print(f"\nPerformance Summary:")
-    print(f"  Package creation: {creation_time/100*1000:.2f} ms avg")
+    print(f"  Package creation: {creation_time/performance_packages*1000:.2f} ms avg")
     
     if active_packages:
         active_avg = active_retrieval_time/len(active_packages)*1000
@@ -176,7 +189,7 @@ def run_performance_test():
         print("  Compressed package retrieval: N/A (no compressed packages)")
 
     results = {
-        "package_creation_avg_ms": creation_time/100*1000,
+        "package_creation_avg_ms": creation_time/performance_packages*1000,
         "pruning_time_seconds": prune_time,
         "active_retrieval_avg_ms": (active_retrieval_time/len(active_packages)*1000) if active_packages else 0,
         "compressed_retrieval_avg_ms": (compressed_retrieval_time/len(compressed_packages)*1000) if compressed_packages else 0,
@@ -200,7 +213,8 @@ def run_comparison_test():
     engine_baseline = ContextPruningEngine(storage_path=Path(temp_dir.name) / "baseline")
     
     # Create many packages
-    for i in range(200):
+    comparison_packages = BENCHMARK_EXPECTATIONS["comparison_created_packages"]
+    for i in range(comparison_packages):
         engine_baseline.create_package(
             name=f"Baseline Package {i}",
             domain="baseline",
@@ -218,7 +232,7 @@ def run_comparison_test():
     engine_pruned = ContextPruningEngine(storage_path=Path(temp_dir.name) / "pruned")
     
     # Create same packages
-    for i in range(200):
+    for i in range(comparison_packages):
         engine_pruned.create_package(
             name=f"Pruned Package {i}",
             domain="pruned",

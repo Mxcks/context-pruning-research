@@ -33,4 +33,8 @@ jobs:
         run: python -m build --sdist --wheel
 
       - name: Run benchmark invariants
+        env:
+          CONTEXT_BENCHMARK_PERFORMANCE_PACKAGES: "20"
+          CONTEXT_BENCHMARK_LARGE_PACKAGES: "2"
+          CONTEXT_BENCHMARK_COMPARISON_PACKAGES: "40"
         run: python implementation/benchmark.py

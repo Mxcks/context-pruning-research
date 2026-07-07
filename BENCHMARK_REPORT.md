@@ -31,6 +31,14 @@ The script also raises an assertion failure if core benchmark invariants stop ho
 
 The benchmark uses temporary storage so repeated runs are not contaminated by prior registry state.
 
+The default workload can be reduced for CI by setting:
+
+- `CONTEXT_BENCHMARK_PERFORMANCE_PACKAGES`
+- `CONTEXT_BENCHMARK_LARGE_PACKAGES`
+- `CONTEXT_BENCHMARK_COMPARISON_PACKAGES`
+
+GitHub Actions uses a smaller deterministic workload so CI remains fast while still checking the same invariant categories.
+
 ## Interpreting Results
 
 The reported size reduction is a direct consequence of the configured active-size limits and synthetic package sizes. It should not be presented as a general LLM quality or productivity improvement.
